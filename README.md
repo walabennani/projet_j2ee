@@ -4,7 +4,7 @@ Cette application optimise et automatise l’ensemble du cycle de maintenance, d
 
 ⚙️ Technologies Utilisées
 
-🧰 Conditions préalables
+🧰 Conditions préalables (Spring boot)
 - ☕ Java 21
 - ⚡ Gradle
 - 🗄️ MySQL
