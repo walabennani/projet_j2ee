@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard Maintenance</title>
+</head>
+<body>
+    <h1>Tableau de bord des pannes</h1>
+    <button onclick="chargerPannes()">Afficher les pannes</button>
+    <table border="1">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Description</th>
+                <th>Catégorie</th>
+                <th>Équipement</th>
+                <th>Date</th>
+            </tr>
+        </thead>
+        <tbody id="table-pannes"></tbody>
+    </table>
+
+    <script>
+        function chargerPannes() {
+            fetch('/api/panne') // adapte ce chemin
+                .then(response => response.json())
+                .then(data => {
+                    let table = document.getElementById("table-pannes");
+                    table.innerHTML = "";
+                    data.forEach(panne => {
+                        table.innerHTML += `
+                            <tr>
+                                <td>${panne.id}</td>
+                                <td>${panne.description}</td>
+                                <td>${panne.categorie}</td>
+                                <td>${panne.equipement}</td>
+                                <td>${panne.date_signalement}</td>
+                            </tr>
+                        `;
+                    });
+                })
+                .catch(error => console.error("Erreur : ", error));
+        }
+    </script>
+</body>
+</html>

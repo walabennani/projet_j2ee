@@ -1,0 +1,60 @@
+<div class="container mt-5">
+  <h2 class="text-primary">Liste des Pannes</h2>
+
+  <table class="table table-bordered table-hover mt-3">
+    <thead class="table-dark">
+      <tr>
+        <th>Description</th>
+        <th>Catégorie</th>
+        <th>Équipement</th>
+        <th>Date Signalée</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let panne of pannes">
+        <td>{{ panne.description }}</td>
+        <td>{{ panne.category }}</td>
+        <td>{{ getEquipementName(panne.equipement.id) }}</td>
+        <td>{{ panne.dateReported | date:'shortDate' }}</td>
+        <td>
+          <button class="btn btn-sm btn-warning me-2" (click)="editPanne(panne)">Modifier</button>
+          <button class="btn btn-sm btn-danger" (click)="deletePanne(panne.id!)">Supprimer</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h4 class="mt-5 text-success">{{ isEditMode ? 'Modifier' : 'Ajouter' }} une Panne</h4>
+  <form (ngSubmit)="savePanne()" class="row g-3 mt-3">
+    <div class="col-md-3">
+      <input type="text" class="form-control" [(ngModel)]="newPanne.description" name="description" placeholder="Description" required />
+    </div>
+
+    <div class="col-md-2">
+      <select class="form-select" [(ngModel)]="newPanne.category" name="category" required>
+        <option value="" disabled selected>Choisir une catégorie</option>
+        <option *ngFor="let cat of categories" [value]="cat">{{ cat }}</option>
+      </select>
+    </div>
+
+    <div class="col-md-3">
+      <select class="form-select" [(ngModel)]="selectedEquipementId" name="equipement" required>
+        <option [value]="0" disabled>Choisir un équipement</option>
+        <option *ngFor="let eq of equipements" [value]="eq.id">
+          {{ eq.nom }}
+        </option>
+      </select>
+    </div>
+
+    <div class="col-md-2">
+      <input type="date" class="form-control" [(ngModel)]="newPanne.dateReported" name="dateReported" required />
+    </div>
+
+    <div class="col-md-2">
+      <button type="submit" class="btn btn-primary w-100">
+        {{ isEditMode ? 'Mettre à jour' : 'Ajouter' }}
+      </button>
+    </div>
+  </form>
+</div>

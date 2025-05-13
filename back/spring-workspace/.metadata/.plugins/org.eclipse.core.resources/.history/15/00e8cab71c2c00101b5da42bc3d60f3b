@@ -1,0 +1,95 @@
+package tn.itbs.maintenanceapp.service;
+
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import tn.itbs.maintenanceapp.bean.Competence;
+import tn.itbs.maintenanceapp.bean.Technicien;
+import tn.itbs.maintenanceapp.repository.CompetenceRepo;
+import tn.itbs.maintenanceapp.repository.TechnicienRepo;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+
+@Service
+public class TechnicienService {
+
+    private final TechnicienRepo technicienRepo;
+    private final CompetenceRepo competenceRepo;
+
+    @Autowired
+    public TechnicienService(TechnicienRepo technicienRepo, CompetenceRepo competenceRepo) {
+        this.technicienRepo = technicienRepo;
+        this.competenceRepo= competenceRepo;
+    }
+
+    public Technicien saveTechnicien(Technicien technicien) {
+        return technicienRepo.save(technicien);
+    }
+
+    public Optional<Technicien> getTechnicienById(Long id) {
+        return technicienRepo.findById(id);
+    }
+
+    public List<Technicien> getAllTechniciens() {
+        return technicienRepo.findAll();
+    }
+
+    public void deleteTechnicien(Long id) {
+        technicienRepo.deleteById(id);
+    }
+
+    public boolean technicienExists(Long id) {
+        return technicienRepo.existsById(id);
+    }
+
+    public Technicien getTechnicienByUuid(UUID uuid) {
+        return technicienRepo.findByUuid(uuid);
+    }
+
+    public List<Technicien> searchTechniciensByName(String name) {
+        return technicienRepo.findByNameContainingIgnoreCase(name);
+    }
+
+    public List<Technicien> findTechniciensByCompetences(List<Competence> competences) {
+        return technicienRepo.findByCompetenceIn(competences);
+    }
+
+    public List<Technicien> getAvailableTechniciens() {
+        return technicienRepo.findByAvailableTrue();
+    }
+
+    public Technicien getTechnicienByName(String name) {
+        return technicienRepo.findByName(name);
+    }
+    
+    public Technicien addCompetenceToTechnicien(Long technicienId, Competence competence) {
+        Technicien technicien = technicienRepo.findById(technicienId)
+                .orElseThrow(() -> new RuntimeException("Technician not found"));
+
+        competence.setTechnicien(technicien); 
+        competenceRepo.save(competence); 
+
+        technicien.getCompetence().add(competence); 
+        return technicienRepo.save(technicien); 
+    }
+    public Competence saveCompetence(Competence competence) {
+        return competenceRepo.save(competence);
+    }
+    
+    
+    public Technicien updateTechnicien(Long id, Technicien updatedTechnicien) {
+        Technicien existing = technicienRepo.findById(id)
+            .orElseThrow(() -> new RuntimeException("Technicien non trouvé"));
+        
+        // Met à jour les champs que tu veux modifier
+        existing.setName(updatedTechnicien.getName());
+        
+        
+        return technicienRepo.save(existing);
+    }
+
+
+}

@@ -1,0 +1,29 @@
+document.addEventListener('DOMContentLoaded', async () => {
+    try {
+        // Load dashboard stats
+        const stats = await apiService.getDashboardStats();
+        document.getElementById('active-pannes-count').textContent = stats.activePannes || 0;
+        document.getElementById('ongoing-interventions-count').textContent = stats.ongoingInterventions || 0;
+        document.getElementById('working-equipments-count').textContent = stats.workingEquipments || 0;
+
+        // Load recent pannes
+        const recentPannes = await apiService.getRecentPannes();
+        const tbody = document.querySelector('#recent-pannes-table tbody');
+        
+        recentPannes.forEach(panne => {
+            const row = document.createElement('tr');
+            
+            row.innerHTML = `
+                <td>${panne.id}</td>
+                <td>${panne.description}</td>
+                <td>${panne.equipement.nom}</td>
+                <td>${new Date(panne.dateSignalement).toLocaleString()}</td>
+            `;
+            
+            tbody.appendChild(row);
+        });
+    } catch (error) {
+        console.error('Error loading dashboard data:', error);
+        alert('Erreur lors du chargement des données du tableau de bord');
+    }
+});

@@ -1,0 +1,58 @@
+<div class="container mt-5">
+  <h2 class="mb-4 text-primary">Liste des Techniciens</h2>
+
+  <table class="table table-bordered table-striped">
+    <thead class="table-dark">
+      <tr>
+        <th>Nom</th>
+        <th>Disponibilité</th>
+        <th>Compétence</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let tech of techniciens">
+        <td>{{ tech.name }}</td>
+        <td>
+          <span [ngClass]="tech.available === 'oui' ? 'text-success' : 'text-danger'">
+            {{ tech.available === 'oui' ? 'Disponible' : 'Non disponible' }}
+          </span>
+        </td>
+        <td>
+          <span class="badge bg-info">{{ tech.competences }}</span>
+        </td>
+        <td>
+          <button class="btn btn-sm btn-warning me-2" (click)="editTechnicien(tech)">Modifier</button>
+          <button class="btn btn-sm btn-danger" (click)="deleteTechnicien(tech.id!)">Supprimer</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h4 class="mt-5 text-success">{{ isEditMode ? 'Modifier' : 'Ajouter' }} un Technicien</h4>
+
+  <form (ngSubmit)="saveTechnicien()" class="row g-3 mt-3">
+    <div class="col-md-4">
+      <input type="text" class="form-control" [(ngModel)]="newTechnicien.name" name="name" placeholder="Nom" required />
+    </div>
+
+    <div class="col-md-3">
+      <select class="form-select" [(ngModel)]="newTechnicien.available" name="available" required>
+        <option value="" disabled selected>Disponibilité</option>
+        <option value="oui">Oui</option>
+        <option value="non">Non</option>
+      </select>
+    </div>
+
+    <div class="col-md-4">
+      <input type="text" class="form-control" [(ngModel)]="newTechnicien.competences" name="competence"
+             placeholder="Compétence" required />
+    </div>
+
+    <div class="col-md-1">
+      <button type="submit" class="btn btn-primary w-100">
+        {{ isEditMode ? 'Mettre à jour' : 'Ajouter' }}
+      </button>
+    </div>
+  </form>
+</div>

@@ -1,0 +1,43 @@
+<div class="container mt-4">
+  <h2 class="mb-4 text-primary">Liste des Équipements</h2>
+
+  <table class="table table-bordered table-striped">
+    <thead class="table-dark">
+      <tr>
+        <th>Nom</th>
+        <th>État</th>
+        <th>Date Acquisition</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let e of equipements">
+        <td>{{ e.nom }}</td>
+        <td>{{ e.status }}</td>
+        <td>{{ e.acquisitionDate }}</td>
+        <td>
+          <button class="btn btn-sm btn-warning me-2" (click)="editEquipement(e)">Modifier</button>
+          <button class="btn btn-sm btn-danger" (click)="deleteEquipement(e.id!)">Supprimer</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3 class="mt-5 text-success">{{ isEditMode ? 'Modifier' : 'Ajouter' }} un Équipement</h3>
+  <form class="row g-3" (ngSubmit)="saveEquipement()">
+    <div class="col-md-4">
+      <input [(ngModel)]="newEquipement.nom" name="nom" class="form-control" placeholder="Nom" required />
+    </div>
+    <div class="col-md-4">
+      <input [(ngModel)]="newEquipement.status" name="etat" class="form-control" placeholder="État" required />
+    </div>
+    <div class="col-md-4">
+      <input [(ngModel)]="newEquipement.acquisitionDate" name="dateAcquisition" type="date" class="form-control" required />
+    </div>
+    <div class="col-12">
+      <button type="submit" class="btn btn-primary mt-3">
+        {{ isEditMode ? 'Mettre à jour' : 'Ajouter' }}
+      </button>
+    </div>
+  </form>
+</div>

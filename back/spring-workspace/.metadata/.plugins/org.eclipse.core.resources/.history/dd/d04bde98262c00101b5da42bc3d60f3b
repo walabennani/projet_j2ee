@@ -1,0 +1,119 @@
+package tn.itbs.maintenanceapp.controller;
+
+import jakarta.validation.Valid;
+import tn.itbs.maintenanceapp.bean.Technicien;
+import tn.itbs.maintenanceapp.service.TechnicienService;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
+
+import java.util.*;
+
+@RestController
+@RequestMapping("/api/technicien")
+public class TechnicienController {
+
+    private static final Logger logger = LoggerFactory.getLogger(TechnicienController.class);
+
+    private final TechnicienService technicienService;
+
+    @Autowired
+    public TechnicienController(TechnicienService technicienService) {
+        this.technicienService = technicienService;
+    }
+
+    @GetMapping
+    public ResponseEntity<List<Technicien>> getAllTechnicians() {
+        return ResponseEntity.ok(technicienService.getAllTechniciens());
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<?> getTechnicianById(@PathVariable Long id) {
+        return technicienService.getTechnicienById(id)
+                .map(ResponseEntity::ok)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Technicien non trouvé"));
+    }
+
+    @PostMapping
+    public ResponseEntity<?> saveTechnician(@Valid @RequestBody Technicien technicien) {
+        try {
+            if (technicien.getCompetences() == null || technicien.getCompetences().isEmpty()) {
+                throw new RuntimeException("Les compétences ne peuvent pas être nulles ou vides");
+            }
+
+            Technicien savedTechnicien = technicienService.saveTechnicien(technicien);
+            return ResponseEntity.status(HttpStatus.CREATED).body(savedTechnicien);
+        } catch (Exception e) {
+            logger.error("Erreur lors de l'enregistrement du technicien : {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Impossible d'enregistrer le technicien.");
+        }
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<?> updateTechnician(@PathVariable ('id') Long id, @RequestBody Technicien updatedTechnicien) {
+        if (!technicienService.technicienExists(id)) {
+            logger.warn("Technicien non trouvé avec l'id {}", id);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Technicien non trouvé.");
+        }
+
+        try {
+            if (updatedTechnicien.getCompetences() == null || updatedTechnicien.getCompetences().isEmpty()) {
+                throw new RuntimeException("Les compétences ne peuvent pas être nulles ou vides");
+            }
+
+            Technicien technicien = technicienService.updateTechnicien(id, updatedTechnicien);
+            return ResponseEntity.ok(technicien);
+        } catch (Exception e) {
+            logger.error("Erreur lors de la mise à jour du technicien : {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erreur lors de la mise à jour.");
+        }
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteTechnician(@PathVariable Long id) {
+        if (!technicienService.technicienExists(id)) {
+            logger.warn("Technicien non trouvé avec l'id {}", id);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Technicien non trouvé.");
+        }
+
+        try {
+            technicienService.deleteTechnicien(id);
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+        } catch (Exception e) {
+            logger.error("Erreur lors de la suppression : {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Impossible de supprimer le technicien.");
+        }
+    }
+
+    @GetMapping("/uuid/{uuid}")
+    public ResponseEntity<?> getTechnicianByUuid(@PathVariable UUID uuid) {
+        try {
+            Technicien technicien = technicienService.getTechnicienByUuid(uuid);
+            return technicien != null
+                    ? ResponseEntity.ok(technicien)
+                    : ResponseEntity.status(HttpStatus.NOT_FOUND).body("Technicien non trouvé.");
+        } catch (Exception e) {
+            logger.error("Erreur UUID {} : {}", uuid, e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erreur lors de la récupération.");
+        }
+    }
+
+    @GetMapping("/available")
+    public ResponseEntity<List<Technicien>> getAvailableTechnicians() {
+        return ResponseEntity.ok(technicienService.getAvailableTechniciens());
+    }
+
+    @GetMapping("/name/{name}")
+    public ResponseEntity<?> getTechnicianByName(@PathVariable String name) {
+        Technicien technicien = technicienService.getTechnicienByName(name);
+        return technicien != null
+                ? ResponseEntity.ok(technicien)
+                : ResponseEntity.status(HttpStatus.NOT_FOUND).body("Technicien non trouvé.");
+    }
+}

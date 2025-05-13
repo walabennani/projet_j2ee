@@ -1,0 +1,54 @@
+package tn.itbs.maintenanceapp.service;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import tn.itbs.maintenanceapp.bean.Competence;
+import tn.itbs.maintenanceapp.repository.CompetenceRepo;
+
+import java.util.List;
+import java.util.Optional;
+
+@Service
+public class CompetenceService {
+
+    private final CompetenceRepo competenceRepository;
+
+    @Autowired
+    public CompetenceService(CompetenceRepo competenceRepository) {
+        this.competenceRepository = competenceRepository;
+    }
+
+    // Récupérer toutes les compétences
+    public List<Competence> getAllCompetences() {
+        return competenceRepository.findAll();
+    }
+
+    // Récupérer une compétence par son id
+    public Optional<Competence> getCompetenceById(Long id) {
+        return competenceRepository.findById(id);
+    }
+
+    // Vérifier si la compétence existe
+    public boolean competenceExists(Long id) {
+        return competenceRepository.existsById(id);
+    }
+
+    // Sauvegarder une compétence
+    public Competence saveCompetence(Competence competence) {
+        return competenceRepository.save(competence);
+    }
+
+    // Mettre à jour une compétence existante
+    public Competence updateCompetence(Long id, Competence updatedCompetence) {
+        if (competenceRepository.existsById(id)) {
+            updatedCompetence.setId(id);  // Assurez-vous de conserver l'ID de la compétence existante
+            return competenceRepository.save(updatedCompetence);
+        }
+        return null;
+    }
+
+    // Supprimer une compétence
+    public void deleteCompetence(Long id) {
+        competenceRepository.deleteById(id);
+    }
+}

@@ -1,0 +1,94 @@
+package tn.itbs.maintenanceapp.service;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import tn.itbs.maintenanceapp.bean.Technicien;
+import tn.itbs.maintenanceapp.repository.TechnicienRepo;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.stream.Collectors;
+
+@Service
+public class TechnicienService {
+
+    private final TechnicienRepo technicienRepo;
+
+    @Autowired
+    public TechnicienService(TechnicienRepo technicienRepo) {
+        this.technicienRepo = technicienRepo;
+    }
+
+    public Technicien saveTechnicien(Technicien technicien) {
+        // Assurez-vous que les compétences sont correctement formatées si nécessaire
+        if (technicien.getCompetences() != null) {
+            // Nettoyer les espaces dans chaque compétence
+            technicien.setCompetences(technicien.getCompetences()
+                .stream()
+                .map(comp -> comp.replace(" ", ""))  // Retirer les espaces
+                .collect(Collectors.toList()));
+        }
+        return technicienRepo.save(technicien);
+    }
+
+    public Optional<Technicien> getTechnicienById(Long id) {
+        return technicienRepo.findById(id);
+    }
+
+    public List<Technicien> getAllTechniciens() {
+        return technicienRepo.findAll();
+    }
+
+    public void deleteTechnicien(Long id) {
+        Technicien existingTechnicien = technicienRepo.findById(id)
+                .orElseThrow(() -> new RuntimeException("Technicien non trouvé avec l'id " + id));
+        technicienRepo.delete(existingTechnicien);
+    }
+
+    public boolean technicienExists(Long id) {
+        return technicienRepo.existsById(id);
+    }
+
+    public Technicien getTechnicienByUuid(UUID uuid) {
+        return Optional.ofNullable(technicienRepo.findByUuid(uuid))
+                .orElseThrow(() -> new RuntimeException("Technicien avec l'UUID " + uuid + " non trouvé"));
+    }
+
+    public List<Technicien> searchTechniciensByName(String name) {
+        return technicienRepo.findByNameContainingIgnoreCase(name);
+    }
+
+    public List<Technicien> getAvailableTechniciens() {
+        return technicienRepo.findByAvailableTrue();
+    }
+
+    public Technicien getTechnicienByName(String name) {
+        return Optional.ofNullable(technicienRepo.findByName(name))
+                .orElseThrow(() -> new RuntimeException("Technicien avec le nom " + name + " non trouvé"));
+    }
+
+    public Technicien updateTechnicien(Long id, Technicien updatedTechnicien) {
+        Technicien existing = technicienRepo.findById(id)
+                .orElseThrow(() -> new RuntimeException("Technicien non trouvé"));
+
+        // Mettre à jour les informations pertinentes
+        if (updatedTechnicien.getName() != null) {
+            existing.setName(updatedTechnicien.getName());
+        }
+
+        if (updatedTechnicien.getAvailable() != null) {
+            existing.setAvailable(updatedTechnicien.getAvailable());
+        }
+
+        if (updatedTechnicien.getCompetences() != null) {
+            // Nettoyer les compétences si nécessaire
+            existing.setCompetences(updatedTechnicien.getCompetences()
+                .stream()
+                .map(comp -> comp.replace(" ", ""))  // Nettoyer les espaces
+                .collect(Collectors.toList()));
+        }
+
+        return technicienRepo.save(existing);
+    }
+}

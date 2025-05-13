@@ -1,0 +1,86 @@
+package tn.itbs.maintenanceapp.controller;
+
+import jakarta.validation.Valid;
+import tn.itbs.maintenanceapp.bean.Competence;
+import tn.itbs.maintenanceapp.service.CompetenceService;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.Optional;
+
+@RestController
+@RequestMapping("/api/competence")
+public class CompetenceController {
+
+    private static final Logger logger = LoggerFactory.getLogger(CompetenceController.class);
+    private final CompetenceService competenceService;
+
+    @Autowired
+    public CompetenceController(CompetenceService competenceService) {
+        this.competenceService = competenceService;
+    }
+
+    @GetMapping
+    public ResponseEntity<List<Competence>> getAllCompetences() {
+        List<Competence> competences = competenceService.getAllCompetences();
+        return ResponseEntity.ok(competences);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<?> getCompetenceById(@PathVariable Long id) {
+        Optional<Competence> competenceOpt = competenceService.getCompetenceById(id);
+        if (competenceOpt.isPresent()) {
+            return ResponseEntity.ok(competenceOpt.get());
+        } else {
+            logger.warn("Compétence non trouvée avec l'id {}", id);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Compétence non trouvée.");
+        }
+    }
+
+    @PostMapping
+    public ResponseEntity<?> saveCompetence(@Valid @RequestBody Competence competence) {
+        try {
+            Competence savedCompetence = competenceService.saveCompetence(competence);
+            return ResponseEntity.status(HttpStatus.CREATED).body(savedCompetence);
+        } catch (Exception e) {
+            logger.error("Erreur lors de l'enregistrement de la compétence : {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Impossible d'enregistrer la compétence.");
+        }
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<?> updateCompetence(@PathVariable("id") Long id, @RequestBody Competence updatedCompetence) {
+        if (!competenceService.competenceExists(id)) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Compétence non trouvée.");
+        }
+
+        try {
+            Competence competence = competenceService.updateCompetence(id, updatedCompetence);
+            return ResponseEntity.ok(competence);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erreur lors de la mise à jour.");
+        }
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteCompetence(@PathVariable("id") Long id) {
+        if (!competenceService.competenceExists(id)) {
+            logger.warn("Tentative de suppression d’une compétence inexistante avec l'id {}", id);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Compétence non trouvée.");
+        }
+        try {
+            competenceService.deleteCompetence(id);
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+        } catch (Exception e) {
+            logger.error("Erreur lors de la suppression de la compétence avec l'id {} : {}", id, e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Impossible de supprimer la compétence.");
+        }
+    }
+}
