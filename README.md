@@ -24,13 +24,7 @@ Cette application optimise et automatise l’ensemble du cycle de maintenance, d
 🌐 API REST sécurisée
 
 
-🔐 Authentification
 
-- Configuration de connexion en mémoire:
-  
-     Username:wala
-  
-     Password:walaspring
   
 📁 Structure du projet
 
@@ -60,4 +54,4 @@ Vous pouvez tester les points de terminaison à l'aide de Postman :
 
 Projet réalisé par wala bennani
 
-Développé avec Eclipse (backend)
+Développé avec Eclipse (backend) et VS Code (frontend)
