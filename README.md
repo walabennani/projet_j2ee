@@ -8,7 +8,15 @@ Cette application optimise et automatise l’ensemble du cycle de maintenance, d
 - ☕ Java 21
 - ⚡ Gradle
 - 🗄️ MySQL
+  
+💻 Frontend (Angular)
 
+  - Angular 15.2.11
+    
+  - Angular CLI
+    
+  - HTML / CSS
+    
 📚 Fonctionnalités
 
    CRUD complet sur :
@@ -43,6 +51,12 @@ src/main/java
 ├── service/           
 
 └── MaintenanceAppApplication.java
+
+🚀 Lancer le Projet en Local
+
+  Backend (port 9090)
+
+  Frontend (port 4200)
 
 👨‍💻 Test avec Postman
 
