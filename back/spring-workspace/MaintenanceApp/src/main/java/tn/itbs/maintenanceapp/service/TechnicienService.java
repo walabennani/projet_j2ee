@@ -1,0 +1,70 @@
+package tn.itbs.maintenanceapp.service;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import tn.itbs.maintenanceapp.bean.Technicien;
+import tn.itbs.maintenanceapp.repository.TechnicienRepo;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+
+@Service
+public class TechnicienService {
+
+    private final TechnicienRepo technicienRepo;
+
+    @Autowired
+    public TechnicienService(TechnicienRepo technicienRepo) {
+        this.technicienRepo = technicienRepo;
+    }
+
+    public Technicien saveTechnicien(Technicien technicien) {
+        boolean alreadyExists = technicienRepo.existsByNameAndCompetences(
+                technicien.getName(), technicien.getCompetences());
+
+        if (alreadyExists) {
+            throw new RuntimeException("Un technicien avec le même nom et compétences existe déjà.");
+        }
+
+        return technicienRepo.save(technicien);
+    }
+
+
+    public Optional<Technicien> getTechnicienById(Long id) {
+        return technicienRepo.findById(id);
+    }
+
+    public List<Technicien> getAllTechniciens() {
+        return technicienRepo.findAll();
+    }
+
+    public void deleteTechnicien(Long id) {
+        technicienRepo.deleteById(id);
+    }
+
+    public boolean technicienExists(Long id) {
+        return technicienRepo.existsById(id);
+    }
+
+    
+    public List<Technicien> searchTechniciensByName(String name) {
+        return technicienRepo.findByNameContainingIgnoreCase(name);
+    }
+
+    public List<Technicien> getAvailableTechniciens() {
+        return technicienRepo.findByAvailableTrue();
+    }
+
+ 
+    public Technicien updateTechnicien(Long id, Technicien updatedTechnicien) {
+        Technicien existing = technicienRepo.findById(id)
+                .orElseThrow(() -> new RuntimeException("Technicien non trouvé"));
+
+        existing.setName(updatedTechnicien.getName());
+        existing.setCompetences(updatedTechnicien.getCompetences());
+        existing.setAvailable(updatedTechnicien.getAvailable());
+
+        return technicienRepo.save(existing);
+    }
+}

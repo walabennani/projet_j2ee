@@ -1,0 +1,66 @@
+package tn.itbs.maintenanceapp.service;
+
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import tn.itbs.maintenanceapp.bean.Intervention;
+import tn.itbs.maintenanceapp.bean.InterventionStatus;
+import tn.itbs.maintenanceapp.repository.InterventionRepo;
+import tn.itbs.maintenanceapp.service.InterventionService;
+
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+
+@Service
+public class InterventionService  {
+
+    private final InterventionRepo interventionRepo;
+
+    @Autowired
+    public InterventionService(InterventionRepo interventionRepo) {
+        this.interventionRepo = interventionRepo;
+    }
+
+    public Intervention saveIntervention(Intervention intervention) {
+        return interventionRepo.save(intervention);
+    }
+
+    public Optional<Intervention> getInterventionById(Long id) {
+        return interventionRepo.findById(id);
+    }
+
+    public Optional<Intervention> getInterventionByUuid(UUID uuid) {
+        return interventionRepo.findByUuid(uuid);
+    }
+
+    public List<Intervention> getAllInterventions() {
+        return interventionRepo.findAll();
+    }
+
+    public void deleteIntervention(Long id) {
+        interventionRepo.deleteById(id);
+    }
+
+    public List<Intervention> getInterventionsByTechnicienId(Long technicianId) {
+        return interventionRepo.findByTechnicianId(technicianId); 
+    }
+
+    public List<Intervention> getInterventionsByEquipementId(Long equipementId) {
+        return interventionRepo.findByEquipmentId(equipementId);
+    }
+
+    public List<Intervention> getInterventionsByStatus(String status) {
+        try {
+            InterventionStatus enumStatus = InterventionStatus.valueOf(status.toUpperCase());
+            return interventionRepo.findByStatus(enumStatus);
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("Statut d’intervention invalide : " + status);
+        }
+    }
+    public List<Intervention> getInterventionsByDate(LocalDate date) {
+        return interventionRepo.findByDate(date);
+    }
+}

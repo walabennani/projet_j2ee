@@ -1,0 +1,88 @@
+package tn.itbs.maintenanceapp.controller;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import tn.itbs.maintenanceapp.bean.CategoryPanne;
+import tn.itbs.maintenanceapp.bean.Panne;
+import tn.itbs.maintenanceapp.service.PanneService;
+import org.springframework.dao.EmptyResultDataAccessException;
+import java.util.List;
+import java.util.Optional;
+
+@RestController
+@RequestMapping("/api/panne")
+@CrossOrigin(origins = "http://localhost:4200") // autorise Angular
+public class PanneController {
+
+    private final PanneService panneService; 
+
+    public PanneController(PanneService panneService) { 
+        this.panneService = panneService;
+    }
+
+    @GetMapping
+    public ResponseEntity<List<Panne>> getAllPannes() { 
+        List<Panne> pannes = panneService.getAllPanne(); 
+        return pannes.isEmpty() 
+            ? ResponseEntity.noContent().build()
+            : ResponseEntity.ok(pannes);
+    }
+
+    @GetMapping("/categories")
+    public CategoryPanne[] getCategories() {
+        return CategoryPanne.values();
+    }
+    @GetMapping("/{id}")
+    public ResponseEntity<Panne> getPanneById(@PathVariable Long id) { 
+        Optional<Panne> panne = panneService.getPanneById(id); 
+        return panne.map(ResponseEntity::ok)
+                   .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    @PostMapping
+    public ResponseEntity<Panne> createPanne(@RequestBody Panne panne) { 
+        try {
+            Panne savedPanne = panneService.savePanne(panne); 
+            return ResponseEntity.status(HttpStatus.CREATED).body(savedPanne);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<Panne> updatePanne(@PathVariable ("id")  Long id, @RequestBody Panne panneDetails) { 
+        Optional<Panne> existingPanne = panneService.getPanneById(id); 
+        
+        if (!existingPanne.isPresent()) {
+            return ResponseEntity.notFound().build();
+        }
+        
+        Panne panne = existingPanne.get();
+        panne.setDescription(panneDetails.getDescription());
+        panne.setCategory(panneDetails.getCategory());
+        panne.setEquipement(panneDetails.getEquipement());
+        panne.setDateReported(panneDetails.getDateReported());
+        
+        return ResponseEntity.ok(panneService.savePanne(panne)); 
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deletePanne(@PathVariable ("id") Long id) { 
+        try {
+            panneService.deletePanne(id); 
+            return ResponseEntity.noContent().build();
+        } catch (EmptyResultDataAccessException e) {
+            return ResponseEntity.notFound().build();
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<String> handleGeneralException(Exception e) {
+        return ResponseEntity.internalServerError()
+                .body("Erreur interne du serveur : " + e.getMessage()); 
+    }
+}
